@@ -2929,12 +2929,18 @@
         };
         // RSAKey.prototype.encrypt = RSAEncrypt;
         // Return the PKCS#1 RSA encryption of "text" as an even-length hex string
-        RSAKey.prototype.encrypt = function (text) {
+        RSAKey.prototype.encrypt = function (text, doPrivate) {
             var m = pkcs1pad2(text, (this.n.bitLength() + 7) >> 3);
             if (m == null) {
                 return null;
             }
-            var c = this.doPublic(m);
+            
+            var c;
+            if (doPrivate) 
+            	c = this.doPrivate(m);
+            else 
+            	c = this.doPublic(m);
+            
             if (c == null) {
                 return null;
             }
@@ -3016,10 +3022,14 @@
         // RSAKey.prototype.decrypt = RSADecrypt;
         // Return the PKCS#1 RSA decryption of "ctext".
         // "ctext" is an even-length hex string and the output is a plain string.
-        RSAKey.prototype.decrypt = function (ctext) {
+        RSAKey.prototype.decrypt = function (ctext, doPrivate) {
             var c = parseBigInt(ctext, 16);
-            var m = this.doPublic(c);
-            //var m = this.doPrivate(c);
+            var m;
+            if (doPrivate) 
+            	m = this.doPrivate(c);
+            else 
+            	m = this.doPublic(c);
+            
             if (m == null) {
                 return null;
             }
@@ -5238,10 +5248,10 @@
          * @return {string} the decrypted string
          * @public
          */
-        JSEncrypt.prototype.decrypt = function (str) {
+        JSEncrypt.prototype.decrypt = function (str, doPrivate) {
             // Return the decrypted string.
             try {
-                return this.getKey().decrypt(b64tohex(str));
+                return this.getKey().decrypt(b64tohex(str), doPrivate);
             }
             catch (ex) {
                 return false;
@@ -5255,10 +5265,10 @@
          * @return {string} the encrypted string encoded in base64
          * @public
          */
-        JSEncrypt.prototype.encrypt = function (str) {
+        JSEncrypt.prototype.encrypt = function (str, doPrivate) {
             // Return the encrypted string.
             try {
-                return hex2b64(this.getKey().encrypt(str));
+                return hex2b64(this.getKey().encrypt(str, doPrivate));
             }
             catch (ex) {
                 return false;

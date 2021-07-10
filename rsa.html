@@ -1,36 +1,54 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <meta charset="UTF-8">
-    <title>JS RSA 公钥解密</title>
+<meta charset="UTF-8">
+<title>JS RSA 公钥解密</title>
 </head>
 <!--引入jsencrypt.js-->
 <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
 <script src="./jsencrypt.js"></script>
 <script type="text/javascript">
-    $(function () {
-        $('#testme').click(function () {
-            //TODO 如果想要测试密钥加密，然后公钥解密，需要修改encrypt 中的doPublic 为 doPrivate
-            // var sign = new JSEncrypt();
-            // sign.setPrivateKey($('#privkey').val());
-            // var signature = sign.encrypt($('#input').val());
-            // console.log('加密后数据:', signature);
+	$(function() {
+		$('#testme').click(function() {
+			//TODO 如果想要测试密钥加密，然后公钥解密，需要修改encrypt 中的doPublic 为 doPrivate
+			// var sign = new JSEncrypt();
+			// sign.setPrivateKey($('#privkey').val());
+			// var signature = sign.encrypt($('#input').val());
+			// console.log('加密后数据:', signature);
 
-            var verify = new JSEncrypt();
-            verify.setPublicKey($('#pubkey').val());
-            var verified = verify.decrypt($('#encryptContent').val());
-            console.log('解密后数据:%o', verified);
-            $('#res').text(verified);
+			var plain = $("#plainContent").val();
 
-        });
-    })
+			var rsa = new JSEncrypt();
 
+			// =========================================
+			// 用公钥加密
+			rsa.setPublicKey($('#pubkey').val());
+			var encrypted = rsa.encrypt(plain, false);
+			$('#encryptContent').val(encrypted);
+
+			// 用私钥解密
+			rsa.setPrivateKey($('#privkey').val());
+			var decrypted = rsa.decrypt(encrypted, true);
+			$('#decryptContent').val(decrypted);
+
+			// =========================================
+			// 用私钥加密
+			rsa.setPrivateKey($('#privkey').val());
+			var encrypted = rsa.encrypt(plain, true);
+			$('#encryptContent2').val(encrypted);
+
+			// 用公钥解密
+			rsa.setPublicKey($('#pubkey').val());
+			var decrypted = rsa.decrypt(encrypted, false);
+			$('#decryptContent2').val(decrypted);
+
+		});
+	})
 </script>
 
 <body>
-    <label for="privkey">Private Key</label><br />
-    <textarea id="privkey" rows="15" cols="65">-----BEGIN RSA PRIVATE KEY-----
+
+	<span> <label for="privkey">Private Key</label> <br /> <textarea id="privkey" rows="15" cols="65">-----BEGIN RSA PRIVATE KEY-----
 MIICXQIBAAKBgQDlOJu6TyygqxfWT7eLtGDwajtNFOb9I5XRb6khyfD1Yt3YiCgQ
 WMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76xFxdU6jE0NQ+Z+zEdhUTooNR
 aY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4gwQco1KRMDSmXSMkDwIDAQAB
@@ -44,20 +62,46 @@ V7SwWvSK4WSMnGb1ZBbhgdg57DXaspcwHsFV7hByQ5BvMtIduHcT14ECfcECQATe
 aTgjFnqE/lQ22Rk0eGaYO80cc643BXVGafNfd9fcvwBMnk0iGX0XRsOozVt5Azil
 psLBYuApa66NcVHJpCECQQDTjI2AQhFc1yRnCU/YgDnSpJVm1nASoRUnU8Jfm3Oz
 uku7JUXcVpt08DFSceCEX9unCuMcT72rAQlLpdZir876
------END RSA PRIVATE KEY-----</textarea><br />
-    <label for="pubkey">Public Key</label><br />
-    <textarea id="pubkey" rows="10" cols="65">-----BEGIN PUBLIC KEY-----
+-----END RSA PRIVATE KEY-----</textarea>
+	</span>
+
+	<span style="display: inline-block; width: 200px;"> <label for="pubkey">Public Key</label> <br /> <textarea
+			id="pubkey" rows="10" cols="65">-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDlOJu6TyygqxfWT7eLtGDwajtN
 FOb9I5XRb6khyfD1Yt3YiCgQWMNW649887VGJiGr/L5i2osbl8C9+WJTeucF+S76
 xFxdU6jE0NQ+Z+zEdhUTooNRaY5nZiu5PgDB0ED/ZKBUSLKL7eibMxZtMlUDHjm4
 gwQco1KRMDSmXSMkDwIDAQAB
------END PUBLIC KEY-----</textarea><br />
-    <label for="pubkey">使用密钥加密后的数据</label><br />
-    <textarea id="encryptContent" rows="5"
-        cols="65">Y/f5VqHyS6+9uVZIQLRFbLtNNvnYnrEOFRMCg0FmeojihSILNyrIerh5zYoVbRm9S16K65shz1VW5s/qQxk4hDmQ/cDo3yNdGhzS62XWN9f6rNIRk4pANSqrlt+3/kgooGlPcVRWGuNM2wX2WOJw0OgelZfFIbu0dIHlP8ohZ7w=</textarea>
+-----END PUBLIC KEY-----</textarea>
+	</span>
 
-    <br /> <input id="testme" type="button" value="Test!!!" /><br /><br /><br />
-    <span>结果：</span> <span id="res"></span>
+	<hr>
+	<br />
+	<label for="">明文</label>
+	<br />
+	<textarea id="plainContent" rows="2" cols="65">这是明文内容</textarea>
+	<input id="testme" type="button" value="测试" />
+	<br />
+	<hr>
+	<br />
+	<span style="display: inline-block;"> <label>使用公钥加密后</label> <br /> <textarea id="encryptContent" rows="5"
+			cols="65"></textarea>
+	</span>
+
+	<span style="display: inline-block; width: 200px;"> <label>使用私钥解密后</label> <br /> <textarea id="decryptContent"
+			rows="2" cols="65"></textarea>
+	</span>
+
+	<br />
+	<hr>
+	<br />
+	<span style="display: inline-block;"> <label>使用私钥加密后</label> <br /> <textarea id="encryptContent2" rows="5"
+			cols="65"></textarea>
+	</span>
+
+	<span style="display: inline-block; width: 200px;"> <label>使用公钥解密后</label> <br /> <textarea
+			id="decryptContent2" rows="2" cols="65"></textarea>
+	</span>
+
 </body>
 
 </html>
